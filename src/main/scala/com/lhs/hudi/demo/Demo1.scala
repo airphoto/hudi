@@ -17,7 +17,8 @@ object Demo1 {
 
   }
 
-  def singlePartition(spark:SparkSession):Unit = {
+  // 插入数据
+  def insertData(spark:SparkSession):Unit = {
     val sourceDF: DataFrame = spark.sql("select * from hudi.user_info_demo")
 
     sourceDF
@@ -58,4 +59,47 @@ object Demo1 {
       .save("/test/output/hudi/demo/hudi_hive_sync")
   }
 
+  // 更新数据
+  def updateData(spark:SparkSession):Unit = {
+    val sourceDF: DataFrame = spark.sql("select * from hudi.user_info_demo")
+
+    // 对原始数据做一些修改
+    val reault = sourceDF
+      .where(col("bir_date") === "19970101")
+      .withColumn("bir_date", from_unixtime(unix_timestamp(col("bir_date"), "yyyyMMdd"), "yyyy/MM/dd"))
+      .withColumn("update_date", lit("20200806"))
+      .withColumn("name", lit("世界和平"))
+
+    reault
+      .write
+      .format("org.apache.hudi")
+      .option(DataSourceWriteOptions.RECORDKEY_FIELD_OPT_KEY, "uuid")
+      .option(DataSourceWriteOptions.PRECOMBINE_FIELD_OPT_KEY, "update_date")
+      .option(DataSourceWriteOptions.PARTITIONPATH_FIELD_OPT_KEY, "bir_date")
+      .option(HoodieIndexConfig.BLOOM_INDEX_UPDATE_PARTITION_PATH, "true")
+      .option(HoodieIndexConfig.INDEX_TYPE_PROP, HoodieIndex.IndexType.GLOBAL_BLOOM.name())
+      .option(HoodieWriteConfig.TABLE_NAME, "hudi_hive_sync")
+      .option("hoodie.insert.shuffle.parallelism", "2")
+      .option("hoodie.upsert.shuffle.parallelism", "2")
+      // 同步hive参数
+      .option(DataSourceWriteOptions.HIVE_DATABASE_OPT_KEY, "hudi")
+      .option(DataSourceWriteOptions.HIVE_TABLE_OPT_KEY, "hudi_hive_sync")
+      .option(DataSourceWriteOptions.HIVE_SYNC_ENABLED_OPT_KEY, "true")
+      .option(DataSourceWriteOptions.HIVE_PARTITION_FIELDS_OPT_KEY, "bir_year,bir_month,bir_day")
+      .option(DataSourceWriteOptions.HIVE_PARTITION_EXTRACTOR_CLASS_OPT_KEY, "org.apache.hudi.hive.MultiPartKeysValueExtractor")
+      .option(DataSourceWriteOptions.HIVE_URL_OPT_KEY, "jdbc:hive2://10.122.238.97:10000")
+      .mode(SaveMode.Append)
+      .save("/test/output/hudi/demo/hudi_hive_sync")
+  }
+
+  // 读取增量视图
+  def readIncrementView(spark:SparkSession): Unit = {
+    spark.read
+      .format("org.apache.hudi")
+      .option(DataSourceReadOptions.QUERY_TYPE_OPT_KEY, DataSourceReadOptions.QUERY_TYPE_INCREMENTAL_OPT_VAL)
+      .option(DataSourceReadOptions.BEGIN_INSTANTTIME_OPT_KEY, "20210131172110")
+      .option(DataSourceReadOptions.END_INSTANTTIME_OPT_KEY, "20210131184411")
+      .load("/test/output/hudi/demo/hudi_hive_sync")
+      .show(false)
+  }
 }
