@@ -9,6 +9,19 @@ import org.apache.spark.sql.functions._
 
 /**
   * 测试hudi的例子1
+  *
+  * // 使用工具同步
+  *
+  * sh run_sync_tool.sh --user '' --pass '' \
+  * --table hudi_hive_sync2 --database hudi \
+  * --jdbc-url jdbc:hive2://10.122.238.97:10000 \
+  * --base-path /test/output/hudi/demo/hudi_hive_sync \
+  * --partition-value-extractor org.apache.hudi.hive.MultiPartKeysValueExtractor \
+  * --partitioned-by 'bir_year,bir_month,bir_day'
+  *
+  * bir_date   的格式是   yyyy/MM/dd
+  * DataSourceWriteOptions.PARTITIONPATH_FIELD_OPT_KEY 指定了可以使用 基础路径+birth_date 复合产生的路径
+  * 需要注意的是  bir_year,bir_month,bir_day  已经在代码中指定了
   */
 object Demo1 {
 
@@ -101,5 +114,10 @@ object Demo1 {
       .option(DataSourceReadOptions.END_INSTANTTIME_OPT_KEY, "20210131184411")
       .load("/test/output/hudi/demo/hudi_hive_sync")
       .show(false)
+
+
+    // deltaStreamerStart.读取
+    spark.read.format("org.apache.hudi").option(DataSourceReadOptions.QUERY_TYPE_OPT_KEY, DataSourceReadOptions.QUERY_TYPE_READ_OPTIMIZED_OPT_VAL).load("/test/outoput/hudi/output/demo/base/*").show(false)
+    spark.read.table("hudi.hudi_test1.rt").show(false)
   }
 }

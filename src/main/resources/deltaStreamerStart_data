@@ -1,0 +1,11 @@
+{"timestamp":1612160988000,"_row_key":"001","rider":"001","driver":"001","fare":0.123,"_hoodie_is_deleted":false}
+{"timestamp":1612160988001,"_row_key":"001","rider":"001","driver":"002","fare":0.123,"_hoodie_is_deleted":false}
+{"timestamp":1612160988001,"_row_key":"001","rider":"001","driver":"003","fare":0.123,"_hoodie_is_deleted":false}
+{"timestamp":1612160988001,"_row_key":"001","rider":"001","driver":"004","fare":0.123,"_hoodie_is_deleted":false}
+{"timestamp":1612160988001,"_row_key":"002","rider":"002","driver":"005","fare":0.123,"_hoodie_is_deleted":false}
+{"timestamp":1612160988002,"_row_key":"002","rider":"003","driver":"005","fare":0.123,"_hoodie_is_deleted":false}
+{"timestamp":1612160988003,"_row_key":"002","rider":"004","driver":"005","fare":0.123,"_hoodie_is_deleted":false}
+{"timestamp":1612160988003,"_row_key":"002","rider":"005","driver":"005","fare":0.123,"_hoodie_is_deleted":false}
+{"timestamp":1612160988003,"_row_key":"002","rider":"006","driver":"005","fare":0.123,"_hoodie_is_deleted":false}
+{"timestamp":1612160988004,"_row_key":"002","rider":"007","driver":"005","fare":0.111111111111,"_hoodie_is_deleted":false}
+{"timestamp":1612160988004,"_row_key":"006","rider":"007","driver":"006","fare":0.222222222222,"_hoodie_is_deleted":false}
